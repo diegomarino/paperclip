@@ -47,6 +47,13 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   };
 }
 
+const LOCAL_PATH_PREFIX_RE = /^(\/Users\/|\/home\/|\/tmp\/|\/var\/|\/opt\/|\/etc\/|~\/|\.\/|\.\.\/)/;
+
+function isLocalFilePath(href: string): boolean {
+  if (href.includes("://")) return false;
+  return LOCAL_PATH_PREFIX_RE.test(href);
+}
+
 function mentionChipStyle(color: string | null): CSSProperties | undefined {
   if (!color) return undefined;
   const rgb = hexToRgb(color);
@@ -137,6 +144,9 @@ export function MarkdownBody({ children, className, resolveImageSrc }: MarkdownB
             {label}
           </a>
         );
+      }
+      if (href && isLocalFilePath(href)) {
+        return <code>{linkChildren}</code>;
       }
       return (
         <a href={href} rel="noreferrer">
